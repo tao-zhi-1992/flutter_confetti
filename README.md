@@ -2,7 +2,7 @@
 
 Easily make confetti animation in Flutter.
 
-[Live web demo](https://cj0x39e.github.io/flutter_confetti/)
+[Live web demo](https://tao-zhi-1992.github.io/flutter_confetti/)
 
 ## Features
 
