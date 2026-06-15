@@ -1,6 +1,6 @@
 ## 0.5.1
 
-- Fixed [#9](https://github.com/cj0x39e/flutter_confetti/issues/9)
+- Fixed [#9](https://github.com/tao-zhi-1992/flutter_confetti/issues/9)
 
 ## 0.5.0
 
