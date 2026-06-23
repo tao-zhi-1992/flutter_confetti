@@ -11,14 +11,17 @@ class Square extends ConfettiParticle {
   }) {
     canvas.save();
 
-    final path = Path()..moveTo(physics.x.floor().toDouble(), physics.y.floor().toDouble());
+    final path = Path()
+      ..moveTo(physics.x.floor().toDouble(), physics.y.floor().toDouble());
     path.lineTo(physics.wobbleX, physics.y1.floor().toDouble());
     path.lineTo(physics.x2.floor().toDouble(), physics.y2.floor().toDouble());
-    path.lineTo(physics.x1.floor().toDouble(), physics.wobbleY.floor().toDouble());
+    path.lineTo(
+        physics.x1.floor().toDouble(), physics.wobbleY.floor().toDouble());
 
     path.close();
 
-    final paint = Paint()..color = physics.color.withOpacity(1 - physics.progress);
+    final paint = Paint()
+      ..color = physics.color.withValues(alpha: 1 - physics.progress);
 
     canvas.drawPath(path, paint);
 

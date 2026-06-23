@@ -37,7 +37,7 @@ class Star extends ConfettiParticle {
     path.close();
 
     final paint = Paint()
-      ..color = physics.color.withOpacity(1 - physics.progress);
+      ..color = physics.color.withValues(alpha: 1 - physics.progress);
 
     canvas.drawPath(path, paint);
 

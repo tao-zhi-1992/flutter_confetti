@@ -346,14 +346,11 @@ class _MainAppState extends State<MainApp> {
                       left: 24,
                       bottom: 24,
                       top: 82,
-                      child: Container(
-                        // height: 200,
-                        child: ClipPath(
-                          child: Confetti(
-                            controller: controller,
-                            options: const ConfettiOptions(
-                                particleCount: 100, spread: 70, y: 1),
-                          ),
+                      child: ClipPath(
+                        child: Confetti(
+                          controller: controller,
+                          options: const ConfettiOptions(
+                              particleCount: 100, spread: 70, y: 1),
                         ),
                       )),
                 ),

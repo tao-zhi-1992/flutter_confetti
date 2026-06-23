@@ -1,3 +1,12 @@
+## 0.6.0
+
+- Fix package analysis issues reported by pub.dev.
+- Update the minimum Flutter version to 3.27.0 and migrate color opacity calls to `Color.withValues`.
+
+## 0.5.2
+
+- Change github url. 
+
 ## 0.5.1
 
 - Fixed [#9](https://github.com/tao-zhi-1992/flutter_confetti/issues/9)
