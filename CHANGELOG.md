@@ -1,10 +1,13 @@
+## 0.7.1
+
+- Smooth out fixed-timestep rendering with interpolation between physics steps, so motion stays fluid on the web and on high refresh rate displays when frame timing doesn't line up with the 60Hz physics tick.
+
 ## 0.7.0
 
 - The confetti speed is now frame-rate independent: the physics simulation runs at a fixed 60 ticks per second on every device, so the animation is no longer faster on high refresh rate (e.g. 120Hz) screens.
 - Deprecate the `enableCustomScheduler` argument of `Confetti` and `Confetti.launch`. It is no longer needed and has no effect.
 - Performance improvements:
   - Finished particles are removed from the internal list, so repeated launches no longer accumulate work.
-  - Skip repainting on frames without a physics update (saves ~half the raster work on 120Hz displays).
   - Reuse a shared `Random` instance and per-particle `Paint`/`Path` objects instead of allocating them on every tick.
   - `Emoji` particles with the same emoji, text style and scale now share one rasterized image, and the image is no longer rasterized multiple times while loading.
   - Wrap the confetti canvas in a `RepaintBoundary` to isolate its repaints from the rest of the widget tree.

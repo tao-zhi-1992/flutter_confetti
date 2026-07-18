@@ -193,20 +193,30 @@ class _ConfettiState extends State<Confetti>
       updated = true;
     }
 
-    // On displays faster than 60Hz some frames don't run a physics step,
-    // so there is nothing new to draw and no need to repaint.
-    if (!updated) {
-      return;
+    if (updated) {
+      glueList.removeWhere((glue) => glue.physics.finished);
+
+      if (glueList.isEmpty) {
+        ticker.stop();
+
+        if (widget.onFinished != null) {
+          widget.onFinished!();
+        }
+
+        return;
+      }
     }
 
-    glueList.removeWhere((glue) => glue.physics.finished);
+    // The physics advances in fixed 60Hz steps, but frames rarely line up
+    // with those steps exactly (browser rAF jitter, 120Hz displays, ...).
+    // Drawing each frame at a position interpolated between the previous
+    // and the current physics step keeps the motion smooth instead of
+    // stuttering whenever a frame runs zero or two physics steps.
+    final alpha =
+        accumulator.inMicroseconds / physicsTick.inMicroseconds;
 
-    if (glueList.isEmpty) {
-      ticker.stop();
-
-      if (widget.onFinished != null) {
-        widget.onFinished!();
-      }
+    for (final glue in glueList) {
+      glue.physics.interpolate(alpha);
     }
 
     repaint.value++;
