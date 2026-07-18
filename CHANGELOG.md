@@ -1,3 +1,9 @@
+## 0.8.0
+
+- Add snowfall support: `ConfettiOptions.randomX` and `driftVariance` let particles spawn across the top and drift naturally with `startVelocity: 0`.
+- Add a built-in `Snowflake` particle shape.
+- Refresh the example app with a light gallery UI and a dark play stage (replay / close).
+
 ## 0.7.1
 
 - Smooth out fixed-timestep rendering with interpolation between physics steps, so motion stays fluid on the web and on high refresh rate displays when frame timing doesn't line up with the 60Hz physics tick.
