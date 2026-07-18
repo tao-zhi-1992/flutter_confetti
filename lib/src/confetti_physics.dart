@@ -135,15 +135,20 @@ class ConfettiPhysics {
         tiltAngle: (_rng.nextDouble() * (0.75 - 0.25) + 0.25) * pi,
         color: color,
         decay: options.decay,
-        drift: options.drift,
+        drift: options.drift +
+            (_rng.nextDouble() * 2 - 1) * options.driftVariance,
         random: _rng.nextDouble() + 2,
         tiltSin: 0,
         tiltCos: 0,
         wobbleX: 0,
         wobbleY: 0,
-        gravity: options.gravity * 3,
+        gravity: options.gravity *
+            (options.randomX ? 0.8 + _rng.nextDouble() * 0.4 : 1) *
+            3,
         ovalScalar: 0.6,
-        scalar: options.scalar,
+        scalar: options.randomX
+            ? options.scalar * (0.45 + _rng.nextDouble() * 0.7)
+            : options.scalar,
         flat: options.flat,
         totalTicks: options.ticks);
   }

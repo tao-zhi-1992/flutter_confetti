@@ -82,24 +82,36 @@ class Confetti extends StatefulWidget {
           final height = MediaQuery.of(ctx).size.height;
           final width = MediaQuery.of(ctx).size.width;
 
+          final confetti = Confetti(
+            controller: controller,
+            options: options.randomX
+                ? options
+                : options.copyWith(x: 0.5, y: 0.5),
+            particleBuilder: particleBuilder,
+            onFinished: () {
+              if (onFinished != null) {
+                onFinished(overlayEntry!);
+              } else {
+                overlayEntry?.remove();
+              }
+            },
+            instant: true,
+          );
+
+          // randomX needs the full screen as its coordinate space so
+          // particles can spawn anywhere along the horizontal axis.
+          if (options.randomX) {
+            return Positioned.fill(
+              child: IgnorePointer(child: confetti),
+            );
+          }
+
           return Positioned(
             left: width * options.x,
             top: height * options.y,
             width: 2,
             height: 2,
-            child: Confetti(
-              controller: controller,
-              options: options.copyWith(x: 0.5, y: 0.5),
-              particleBuilder: particleBuilder,
-              onFinished: () {
-                if (onFinished != null) {
-                  onFinished(overlayEntry!);
-                } else {
-                  overlayEntry?.remove();
-                }
-              },
-              instant: true,
-            ),
+            child: confetti,
           );
         },
         opaque: false);
@@ -152,11 +164,13 @@ class _ConfettiState extends State<Confetti>
         ? widget.particleBuilder!
         : (int index) => randomInt(0, 2) == 0 ? Circle() : Square();
 
-    double x = options.x * containerWidth;
-    double y = options.y * containerHeight;
+    final y = options.y * containerHeight;
 
     for (int i = 0; i < options.particleCount; i++) {
       final color = colors[i % colorsCount];
+      final x = options.randomX
+          ? _random.nextDouble() * containerWidth
+          : options.x * containerWidth;
       final physic = ConfettiPhysics.fromOptions(options: options, color: color)
         ..x = x
         ..y = y;

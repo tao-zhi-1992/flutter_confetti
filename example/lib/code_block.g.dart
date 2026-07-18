@@ -1,7 +1,6 @@
 /// AUTO-GENERATED FILE, DO NOT MODIFY
-var titleList = ['Basic Cannon','Random Direction','Fireworks','Stars','Emoji','School Pride','Launch','Not Full Screen'];
+var titleList = ['Basic Cannon','Random Direction','Fireworks','Stars','Emoji','Snow','School Pride','Launch','Not Full Screen'];
 var codeList = ['''
-
 Confetti.launch(
   context,
   options: const ConfettiOptions(
@@ -126,6 +125,58 @@ shoot() {
 Timer(Duration.zero, shoot);
 Timer(const Duration(milliseconds: 200), shoot);
 Timer(const Duration(milliseconds: 400), shoot);
+
+''','''
+
+const colors = [
+  Color(0xFFFFFFFF),
+  Color(0xFFE8F1FF),
+  Color(0xFFBFD7FF),
+];
+
+// ~12 seconds of snowfall.
+int total = 120;
+int progress = 0;
+
+ConfettiController? controller;
+bool isDone = false;
+
+Timer.periodic(const Duration(milliseconds: 100), (timer) {
+  progress++;
+
+  if (progress >= total) {
+    timer.cancel();
+    isDone = true;
+    return;
+  }
+
+  if (controller == null) {
+    controller = Confetti.launch(
+      context,
+      options: const ConfettiOptions(
+        particleCount: 2,
+        // No launch speed — gravity alone pulls them down.
+        startVelocity: 0,
+        spread: 360,
+        ticks: 1000,
+        gravity: 0.4,
+        driftVariance: 0.6,
+        scalar: 0.7,
+        y: -0.05,
+        randomX: true,
+        colors: colors,
+      ),
+      particleBuilder: (index) => Snowflake(),
+      onFinished: (overlayEntry) {
+        if (isDone) {
+          overlayEntry.remove();
+        }
+      },
+    );
+  } else {
+    controller!.launch();
+  }
+});
 
 ''','''
 

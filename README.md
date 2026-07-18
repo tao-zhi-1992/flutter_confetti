@@ -8,7 +8,7 @@ Easily create confetti animations in Flutter.
 
 - easy to use.
 - frame-rate independent: the confetti moves at the same speed on every device, including high refresh rate (e.g. 120Hz) screens.
-- various out-of-the-box shapes: star, circle, square, triangle, emoji.
+- various out-of-the-box shapes: star, circle, square, triangle, emoji, snowflake.
 - many examples demonstrating different confetti animations.
 - easy to create your own custom shapes.
 
@@ -92,6 +92,15 @@ class ConfettiOptions {
   /// Use decimals to make the confetti smaller.
   final double scalar;
 
+  /// If true, each particle's horizontal spawn position is randomized across
+  /// the container width instead of using [x]. Useful for snowfall and similar
+  /// effects where particles should appear along the top of the screen.
+  final bool randomX;
+
+  /// How much each particle's [drift] may vary. The actual drift applied to a
+  /// particle is `drift + random(-driftVariance, driftVariance)`.
+  final double driftVariance;
+
   const ConfettiOptions(
       {this.colors = defaultColors,
       this.particleCount = 50,
@@ -105,7 +114,9 @@ class ConfettiOptions {
       this.scalar = 1,
       this.x = 0.5,
       this.y = 0.5,
-      this.ticks = 200})
+      this.ticks = 200,
+      this.randomX = false,
+      this.driftVariance = 0})
       : assert(decay >= 0 && decay <= 1),
         assert(ticks > 0);
 }
@@ -129,7 +140,7 @@ You can also provide your own builder, for example one that returns a `Star`:
  );
 ```
 
-The built-in shapes are `Circle`, `Square`, `Triangle`, `Emoji` and `Star`. You can also create your own shape by extending the `ConfettiParticle` class, like the `Circle` class below:
+The built-in shapes are `Circle`, `Square`, `Triangle`, `Emoji`, `Star` and `Snowflake`. You can also create your own shape by extending the `ConfettiParticle` class, like the `Circle` class below:
 
 ```dart
 /// 1. Extend ConfettiParticle

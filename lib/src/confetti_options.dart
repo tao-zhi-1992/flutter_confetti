@@ -60,6 +60,15 @@ class ConfettiOptions {
   /// Use decimals to make the confetti smaller.
   final double scalar;
 
+  /// If true, each particle's horizontal spawn position is randomized across
+  /// the container width instead of using [x]. Useful for snowfall and similar
+  /// effects where particles should appear along the top of the screen.
+  final bool randomX;
+
+  /// How much each particle's [drift] may vary. The actual drift applied to a
+  /// particle is `drift + random(-driftVariance, driftVariance)`.
+  final double driftVariance;
+
   const ConfettiOptions(
       {this.colors = defaultColors,
       this.particleCount = 50,
@@ -73,9 +82,12 @@ class ConfettiOptions {
       this.scalar = 1,
       this.x = 0.5,
       this.y = 0.5,
-      this.ticks = 200})
+      this.ticks = 200,
+      this.randomX = false,
+      this.driftVariance = 0})
       : assert(decay >= 0 && decay <= 1),
-        assert(ticks > 0);
+        assert(ticks > 0),
+        assert(driftVariance >= 0);
 
   /// Create a copy of this object with the given fields replaced with new values.
   ConfettiOptions copyWith({
@@ -92,6 +104,8 @@ class ConfettiOptions {
     double? y,
     int? ticks,
     List<Color>? colors,
+    bool? randomX,
+    double? driftVariance,
   }) {
     return ConfettiOptions(
       particleCount: particleCount ?? this.particleCount,
@@ -107,6 +121,8 @@ class ConfettiOptions {
       y: y ?? this.y,
       ticks: ticks ?? this.ticks,
       colors: colors ?? this.colors,
+      randomX: randomX ?? this.randomX,
+      driftVariance: driftVariance ?? this.driftVariance,
     );
   }
 }

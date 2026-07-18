@@ -13,3 +13,4 @@ export 'src/shapes/circle.dart';
 export 'src/shapes/square.dart';
 export 'src/shapes/triangle.dart';
 export 'src/shapes/emoji.dart';
+export 'src/shapes/snowflake.dart';
