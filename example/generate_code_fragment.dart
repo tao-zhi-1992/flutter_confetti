@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 void main(List<String> arguments) {
   var sourceFilePath = './lib/main.dart';
@@ -19,9 +20,16 @@ void main(List<String> arguments) {
     RegExp(r'///BEGIN(\s+(?:.|\n)*?\s+)///END', multiLine: true)
         .allMatches(sourceCode)
         .forEach((match) {
-      final code = match.group(1);
-      final formattedCode = code!.split('\n').map((e) {
-        return e.replaceAll(RegExp(r'^\s{20}'), '');
+      final code = match.group(1)!;
+      final lines = code.split('\n');
+      final indents = lines
+          .where((line) => line.trim().isNotEmpty)
+          .map((line) => line.length - line.trimLeft().length);
+      final minIndent = indents.isEmpty ? 0 : indents.reduce(min);
+
+      final formattedCode = lines.map((line) {
+        if (line.trim().isEmpty) return '';
+        return line.length >= minIndent ? line.substring(minIndent) : line.trimLeft();
       }).join('\n');
       codeList.add(formattedCode);
     });

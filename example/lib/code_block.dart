@@ -1,90 +1,224 @@
 import 'package:example/code_block.g.dart';
+import 'package:example/demo_stage.dart';
+import 'package:example/demo_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:syntax_highlight/syntax_highlight.dart';
 import 'package:flutter/services.dart';
+import 'package:syntax_highlight/syntax_highlight.dart';
 
-class CodeBlock extends StatelessWidget {
+class CodeBlock extends StatefulWidget {
   final Highlighter highlighter;
   final String buttonText;
-  final Function() onTap;
+  final VoidCallback onTap;
   final String? tip;
   final Widget? otherButton;
   final Widget? overWidget;
-  const CodeBlock(
-      {super.key,
-      required this.buttonText,
-      required this.onTap,
-      this.otherButton,
-      required this.highlighter,
-      this.tip,
-      this.overWidget});
+
+  /// How long the black stage stays after the effect starts.
+  final Duration stageHold;
+
+  /// When false, Play runs immediately without the black stage
+  /// (e.g. in-card demos that are not full-screen overlays).
+  final bool useStage;
+
+  const CodeBlock({
+    super.key,
+    required this.buttonText,
+    required this.onTap,
+    this.otherButton,
+    required this.highlighter,
+    this.tip,
+    this.overWidget,
+    this.stageHold = const Duration(seconds: 4),
+    this.useStage = true,
+  });
+
+  @override
+  State<CodeBlock> createState() => _CodeBlockState();
+}
+
+class _CodeBlockState extends State<CodeBlock>
+    with AutomaticKeepAliveClientMixin {
+  static final Map<String, TextSpan> _spanCache = {};
+
+  late final String _codesStr;
+  late final Color _accent;
+  late final TextSpan _codeSpan;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _codesStr = getCodeByTitle(widget.buttonText) as String? ?? '';
+    _accent = DemoColors
+        .accents[widget.buttonText.hashCode.abs() % DemoColors.accents.length];
+    _codeSpan = _spanCache.putIfAbsent(
+      widget.buttonText,
+      () => widget.highlighter.highlight(_codesStr),
+    );
+  }
+
+  void _play(BuildContext context) {
+    if (!widget.useStage) {
+      widget.onTap();
+      return;
+    }
+    DemoStage.present(context, play: widget.onTap, hold: widget.stageHold);
+  }
 
   @override
   Widget build(BuildContext context) {
-    const double width = 500;
-    final codesStr = getCodeByTitle(buttonText);
+    super.build(context);
 
-    return SizedBox(
-      width: width,
-      height: 300,
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return RepaintBoundary(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: DemoColors.surface,
+          borderRadius: BorderRadius.circular(DemoRadii.lg),
+          border: Border.all(color: DemoColors.line),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(DemoRadii.lg),
+          clipBehavior: Clip.hardEdge,
+          child: Stack(
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  OutlinedButton(onPressed: onTap, child: Text(buttonText)),
-                  if (otherButton != null) ...[
-                    const SizedBox(width: 8),
-                    otherButton!
-                  ],
-                  const SizedBox(width: 8),
-                  IconButton(
-                      color: Theme.of(context).primaryColor,
-                      onPressed: () async {
-                        await Clipboard.setData(ClipboardData(text: codesStr));
-                      },
-                      icon: const Icon(Icons.copy_all_rounded)),
-                  if (tip != null)
-                    Expanded(
-                        child: Text(
-                      tip ?? '',
-                      style: const TextStyle(color: Colors.red, fontSize: 10),
-                    ))
-                ],
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(minWidth: width),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    border: Border.all(
-                        width: 1, color: Theme.of(context).primaryColor),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      child: Text.rich(
-                        highlighter.highlight(codesStr),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          height: 1.3,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 12, 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _accent,
+                            shape: BoxShape.circle,
+                          ),
                         ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            widget.buttonText,
+                            style: DemoTextStyles.cardTitle,
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Copy code',
+                          onPressed: () async {
+                            await Clipboard.setData(
+                                ClipboardData(text: _codesStr));
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Copied'),
+                                  behavior: SnackBarBehavior.floating,
+                                  width: 160,
+                                  duration:
+                                      const Duration(milliseconds: 1200),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(DemoRadii.md),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.copy_rounded, size: 18),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        FilledButton(
+                          onPressed: () => _play(context),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: DemoColors.ink,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(DemoRadii.pill),
+                            ),
+                            textStyle: DemoTextStyles.play,
+                          ),
+                          child: const Text('Play'),
+                        ),
+                        if (widget.otherButton != null) widget.otherButton!,
+                        if (widget.tip != null)
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 320),
+                            child: Text(
+                              widget.tip!,
+                              style: DemoTextStyles.tip,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                      decoration: BoxDecoration(
+                        color: DemoColors.codeBg,
+                        borderRadius: BorderRadius.circular(DemoRadii.md),
+                      ),
+                      clipBehavior: Clip.hardEdge,
+                      child: Stack(
+                        children: [
+                          // NeverScrollable: keep layout for tall snippets, but
+                          // don't compete with the page scroll for wheel/trackpad.
+                          SingleChildScrollView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding:
+                                const EdgeInsets.fromLTRB(16, 14, 16, 28),
+                            child: Text.rich(
+                              _codeSpan,
+                              style: DemoTextStyles.code,
+                            ),
+                          ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            height: 28,
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      DemoColors.codeBg.withValues(alpha: 0),
+                                      DemoColors.codeBg,
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
+              if (widget.overWidget != null) widget.overWidget!,
             ],
           ),
-          if (overWidget != null) overWidget!
-        ],
+        ),
       ),
     );
   }

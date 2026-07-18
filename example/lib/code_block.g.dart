@@ -4,12 +4,15 @@ var codeList = ['''
 Confetti.launch(
   context,
   options: const ConfettiOptions(
-      particleCount: 100, spread: 70, y: 0.6),
+      particleCount: 100,
+      spread: 70,
+      y: 0.6),
 );
 
 ''','''
 double randomInRange(double min, double max) {
-  return min + Random().nextDouble() * (max - min);
+  return min +
+      Random().nextDouble() * (max - min);
 }
 
 Confetti.launch(
@@ -17,19 +20,23 @@ Confetti.launch(
   options: ConfettiOptions(
       angle: randomInRange(55, 125),
       spread: randomInRange(50, 70),
-      particleCount: randomInRange(50, 100).toInt(),
+      particleCount:
+          randomInRange(50, 100).toInt(),
       y: 0.6),
 );
 
 ''','''
 double randomInRange(double min, double max) {
-  return min + Random().nextDouble() * (max - min);
+  return min +
+      Random().nextDouble() * (max - min);
 }
 
 int total = 60;
 int progress = 0;
 
-Timer.periodic(const Duration(milliseconds: 250), (timer) {
+Timer.periodic(
+    const Duration(milliseconds: 250),
+    (timer) {
   progress++;
 
   if (progress >= total) {
@@ -37,7 +44,8 @@ Timer.periodic(const Duration(milliseconds: 250), (timer) {
     return;
   }
 
-  int count = ((1 - progress / total) * 50).toInt();
+  int count =
+      ((1 - progress / total) * 50).toInt();
 
   Confetti.launch(
     context,
@@ -79,8 +87,8 @@ const options = ConfettiOptions(
 
 shoot() {
   Confetti.launch(context,
-      options:
-          options.copyWith(particleCount: 40, scalar: 1.2),
+      options: options.copyWith(
+          particleCount: 40, scalar: 1.2),
       particleBuilder: (index) => Star());
   Confetti.launch(context,
       options: options.copyWith(
@@ -91,8 +99,10 @@ shoot() {
 }
 
 Timer(Duration.zero, shoot);
-Timer(const Duration(milliseconds: 100), shoot);
-Timer(const Duration(milliseconds: 200), shoot);
+Timer(const Duration(milliseconds: 100),
+    shoot);
+Timer(const Duration(milliseconds: 200),
+    shoot);
 
 ''','''
 
@@ -111,20 +121,24 @@ shoot() {
       ),
       particleBuilder: (index) => Emoji(
           emoji: '🍄',
-          textStyle: GoogleFonts.notoColorEmoji()));
+          textStyle:
+              GoogleFonts.notoColorEmoji()));
   Confetti.launch(context,
       options: options.copyWith(
         particleCount: 10,
       ),
       particleBuilder: (index) => Emoji(
             emoji: '️⚽',
-            textStyle: GoogleFonts.notoColorEmoji(),
+            textStyle:
+                GoogleFonts.notoColorEmoji(),
           ));
 }
 
 Timer(Duration.zero, shoot);
-Timer(const Duration(milliseconds: 200), shoot);
-Timer(const Duration(milliseconds: 400), shoot);
+Timer(const Duration(milliseconds: 200),
+    shoot);
+Timer(const Duration(milliseconds: 400),
+    shoot);
 
 ''','''
 
@@ -141,7 +155,9 @@ int progress = 0;
 ConfettiController? controller;
 bool isDone = false;
 
-Timer.periodic(const Duration(milliseconds: 100), (timer) {
+Timer.periodic(
+    const Duration(milliseconds: 100),
+    (timer) {
   progress++;
 
   if (progress >= total) {
@@ -166,7 +182,8 @@ Timer.periodic(const Duration(milliseconds: 100), (timer) {
         randomX: true,
         colors: colors,
       ),
-      particleBuilder: (index) => Snowflake(),
+      particleBuilder: (index) =>
+          Snowflake(),
       onFinished: (overlayEntry) {
         if (isDone) {
           overlayEntry.remove();
@@ -193,7 +210,9 @@ ConfettiController? controller1;
 ConfettiController? controller2;
 bool isDone = false;
 
-Timer.periodic(Duration(milliseconds: frameTime), (timer) {
+Timer.periodic(
+    Duration(milliseconds: frameTime),
+    (timer) {
   progress++;
 
   if (progress >= total) {
@@ -245,7 +264,9 @@ Timer.periodic(Duration(milliseconds: frameTime), (timer) {
 final controller = Confetti.launch(
   context,
   options: const ConfettiOptions(
-      particleCount: 100, spread: 70, y: 0.6),
+      particleCount: 100,
+      spread: 70,
+      y: 0.6),
 );
 
 /// call the kill method to kill the confetti

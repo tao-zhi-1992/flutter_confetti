@@ -18,19 +18,39 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Flutter Confetti demo — celebration effects for Flutter.">
+  <meta name="theme-color" content="#FAFBFD">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="example">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Flutter Confetti">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>example</title>
+  <title>Flutter Confetti</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background-color: #FAFBFD;
+    }
+
+    /* Override Flutter's default blue DWDS loading bar. */
+    .flutter-loader {
+      background-color: #E6E9F0 !important;
+    }
+    .indeterminate:before {
+      background-color: #FF5E7E !important;
+    }
+    .indeterminate:after {
+      background-color: #A25AFD !important;
+    }
+  </style>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
