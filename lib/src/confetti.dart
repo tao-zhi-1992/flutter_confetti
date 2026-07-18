@@ -29,7 +29,7 @@ class Confetti extends StatefulWidget {
   final ConfettiController controller;
 
   /// A callback that will be called when the confetti finished its animation.
-  final Function()? onFinished;
+  final void Function()? onFinished;
 
   /// if true, the confetti will be launched instantly as soon as it is created.
   /// the default value is false.
@@ -67,8 +67,8 @@ class Confetti extends StatefulWidget {
     BuildContext context, {
     required ConfettiOptions options,
     ParticleBuilder? particleBuilder,
-    Function(OverlayEntry overlayEntry)? insertInOverlay,
-    Function(OverlayEntry overlayEntry)? onFinished,
+    void Function(OverlayEntry overlayEntry)? insertInOverlay,
+    void Function(OverlayEntry overlayEntry)? onFinished,
     bool enableCustomScheduler = false,
   }) {
     OverlayEntry? overlayEntry;
@@ -130,11 +130,11 @@ class _ConfettiState extends State<Confetti>
   late double containerWidth;
   late double containerHeight;
 
-  randomInt(int min, int max) {
+  int randomInt(int min, int max) {
     return Random().nextInt(max - min) + min;
   }
 
-  addParticles() {
+  void addParticles() {
     final colors = options.colors;
     final colorsCount = colors.length;
 
@@ -157,8 +157,8 @@ class _ConfettiState extends State<Confetti>
     }
   }
 
-  initScheduler() {
-    schedule() {
+  void initScheduler() {
+    void schedule() {
       final finished = !glueList.any((element) => !element.physics.finished);
 
       if (finished) {
@@ -190,7 +190,7 @@ class _ConfettiState extends State<Confetti>
     }
   }
 
-  play() {
+  void play() {
     if (enableCustomScheduler) {
       if (timer == null || !timer!.isActive) {
         initScheduler();
@@ -202,12 +202,12 @@ class _ConfettiState extends State<Confetti>
     }
   }
 
-  launch() {
+  void launch() {
     addParticles();
     play();
   }
 
-  kill() {
+  void kill() {
     for (var glue in glueList) {
       glue.physics.kill();
     }

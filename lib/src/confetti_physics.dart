@@ -82,7 +82,7 @@ class ConfettiPhysics {
         totalTicks: options.ticks);
   }
 
-  update() {
+  void update() {
     progress = ticket / totalTicks;
     ticket++;
 
@@ -116,7 +116,7 @@ class ConfettiPhysics {
     y2 = wobbleY + random * tiltSin;
   }
 
-  kill() {
+  void kill() {
     ticket = totalTicks + 1;
   }
 }
