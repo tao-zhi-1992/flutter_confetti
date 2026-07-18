@@ -5,6 +5,9 @@ import 'package:flutter_confetti/src/confetti_particle.dart';
 import 'package:flutter_confetti/src/confetti_physics.dart';
 
 class Star extends ConfettiParticle {
+  final Paint _paint = Paint();
+  final Path _path = Path();
+
   @override
   void paint({
     required ConfettiPhysics physics,
@@ -20,26 +23,26 @@ class Star extends ConfettiParticle {
     int spikes = 5;
     final step = pi / spikes;
 
-    final path = Path()..moveTo(x, y);
+    _path.reset();
+    _path.moveTo(x, y);
 
     while (spikes-- >= 0) {
       x = physics.x + cos(rot) * outerRadius;
       y = physics.y + sin(rot) * outerRadius;
-      path.lineTo(x, y);
+      _path.lineTo(x, y);
       rot += step;
 
       x = physics.x + cos(rot) * innerRadius;
       y = physics.y + sin(rot) * innerRadius;
-      path.lineTo(x, y);
+      _path.lineTo(x, y);
       rot += step;
     }
 
-    path.close();
+    _path.close();
 
-    final paint = Paint()
-      ..color = physics.color.withValues(alpha: 1 - physics.progress);
+    _paint.color = physics.color.withValues(alpha: 1 - physics.progress);
 
-    canvas.drawPath(path, paint);
+    canvas.drawPath(_path, _paint);
 
     canvas.restore();
   }

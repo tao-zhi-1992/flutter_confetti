@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_confetti/src/utils/glue.dart';
 
 class Painter extends CustomPainter {
-  final AnimationController? animationController;
   final List<Glue> glueList;
 
-  Painter({required this.glueList, this.animationController})
-      : super(repaint: animationController);
+  Painter({required this.glueList, super.repaint});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -15,7 +13,6 @@ class Painter extends CustomPainter {
       final physics = glue.physics;
 
       if (!physics.finished) {
-        physics.update();
         glue.particle.paint(physics: physics, canvas: canvas);
       }
     }

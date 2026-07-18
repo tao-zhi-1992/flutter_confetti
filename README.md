@@ -1,15 +1,16 @@
 # 🎉 Flutter Confetti 🎉
 
-Easily make confetti animation in Flutter.
+Easily create confetti animations in Flutter.
 
 [Live web demo](https://tao-zhi-1992.github.io/flutter_confetti/)
 
 ## Features
 
 - easy to use.
+- frame-rate independent: the confetti moves at the same speed on every device, including high refresh rate (e.g. 120Hz) screens.
 - various out-of-the-box shapes: star, circle, square, triangle, emoji.
-- many examples that demonstrated the different confetti animation.
-- easy to make shapes you want.
+- many examples demonstrating different confetti animations.
+- easy to create your own custom shapes.
 
 ## Getting started
 
@@ -31,13 +32,13 @@ Confetti.launch(
 
 ## API
 
-### `ConfettiController Confetti.launch(BuildContext context, {required ConfettiOptions options, ParticleBuilder? particleBuilder})`
+### `Confetti.launch`
 
-A quick way to launch the confetti. can't use the method without the MaterialApp, CupertinoApp, or WidgetsApp as the root widget. Because the method depend on the Overlay, but you can use the Confetti widget directly.
+A quick way to launch the confetti. This method depends on `Overlay`, so it only works when your app uses `MaterialApp`, `CupertinoApp`, or `WidgetsApp` as the root widget. If that's not the case, use the `Confetti` widget directly instead.
 
 ### `ConfettiOptions`
 
-Below is the description of the properties:
+Below is a description of each property:
 
 ```dart
 class ConfettiOptions {
@@ -112,11 +113,11 @@ class ConfettiOptions {
 
 ### `particleBuilder`
 
-The `particleBuilder`'s type is `typedef ParticleBuilder = ConfettiParticle Function(int index);`
+The type of `particleBuilder` is `typedef ParticleBuilder = ConfettiParticle Function(int index);`
 
-The default builder will create circles and squares.
+The default builder creates circles and squares.
 
-Or you can create your own builder, such as return the Star like below:
+You can also provide your own builder, for example one that returns a `Star`:
 
 ```dart
  Confetti.launch(context,
@@ -128,16 +129,17 @@ Or you can create your own builder, such as return the Star like below:
  );
 ```
 
-Up to now there are those shapes: Circle, Square, Triangle, Emoji and Star, and you can create a shape by inheriting the ConfettiParticle class, like the Circle class below:
+The built-in shapes are `Circle`, `Square`, `Triangle`, `Emoji` and `Star`. You can also create your own shape by extending the `ConfettiParticle` class, like the `Circle` class below:
 
 ```dart
-/// 1. Inherit from ConfettiParticle
+/// 1. Extend ConfettiParticle
 class Circle extends ConfettiParticle {
 
   /// 2. Override paint
   @override
   void paint({
-    /// The physics instance stored all the properties about the position, color, and so on of the particle.
+    /// The physics instance stores the particle's properties,
+    /// such as its position, color, and so on.
     required ConfettiPhysics physics,
     required Canvas canvas,
   }) {
@@ -153,7 +155,7 @@ class Circle extends ConfettiParticle {
     );
 
     final paint = Paint()
-      ..color = physics.color.withOpacity(1 - physics.progress);
+      ..color = physics.color.withValues(alpha: 1 - physics.progress);
 
     canvas.drawArc(Rect.fromCircle(center: const Offset(0, 0), radius: 1), 0,
         2 * pi, true, paint);
@@ -163,18 +165,18 @@ class Circle extends ConfettiParticle {
 }
 ```
 
-As soon as you have created your shape, you can use it in the `particleBuilder`.
+Once you've created your shape, you can use it in the `particleBuilder`.
 
 ### `ConfettiController`
 
-Using the methods of the controller instance to control the confetti:
+Use the methods on the controller instance to control the confetti:
 
-- `controller.launch()`, launch the confetti.
-- `controller.kill()`, kill the showing confetti.
+- `controller.launch()`: launch the confetti.
+- `controller.kill()`: kill the currently showing confetti.
 
 ## How to use emoji
 
-If you just want to use system emoji, you can use the `Emoji` class directly:
+If the system emoji is all you need, you can use the `Emoji` class directly:
 
 ```dart
 Confetti.launch(context,
@@ -195,7 +197,7 @@ Confetti.launch(context,
         textStyle: GoogleFonts.notoColorEmoji()));
 ```
 
-Or use any emoji fonts you want:
+Or use any emoji font you like:
 
 1. Download the font and add it to your pubspec.yaml.
 
@@ -221,5 +223,5 @@ Confetti.launch(context,
 
 ## Thanks
 
-The package was totally inspired by [canvas-confetti](https://github.com/catdad/canvas-confetti), a wonderful confetti animation in the browser,
-I just do a little work to make it work in flutter.
+This package was totally inspired by [canvas-confetti](https://github.com/catdad/canvas-confetti), a wonderful confetti animation library for the browser.
+I just did a little work to bring it to Flutter.

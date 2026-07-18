@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'package:flutter_confetti/src/confetti_options.dart';
 
 class ConfettiPhysics {
+  static final Random _random = Random();
+
   double wobble;
   double wobbleSpeed;
   double velocity;
@@ -60,17 +62,17 @@ class ConfettiPhysics {
     final radSpread = options.spread * (pi / 180);
 
     return ConfettiPhysics(
-        wobble: Random().nextDouble() * 10,
-        wobbleSpeed: min(0.11, Random().nextDouble() * 0.1 + 0.05),
+        wobble: _random.nextDouble() * 10,
+        wobbleSpeed: min(0.11, _random.nextDouble() * 0.1 + 0.05),
         velocity: options.startVelocity * 0.5 +
-            Random().nextDouble() * options.startVelocity,
+            _random.nextDouble() * options.startVelocity,
         angle2D:
-            -radAngle + (0.5 * radSpread - Random().nextDouble() * radSpread),
-        tiltAngle: (Random().nextDouble() * (0.75 - 0.25) + 0.25) * pi,
+            -radAngle + (0.5 * radSpread - _random.nextDouble() * radSpread),
+        tiltAngle: (_random.nextDouble() * (0.75 - 0.25) + 0.25) * pi,
         color: color,
         decay: options.decay,
         drift: options.drift,
-        random: Random().nextDouble() + 2,
+        random: _random.nextDouble() + 2,
         tiltSin: 0,
         tiltCos: 0,
         wobbleX: 0,
@@ -107,7 +109,7 @@ class ConfettiPhysics {
       tiltAngle += 0.1;
       tiltSin = sin(tiltAngle);
       tiltCos = cos(tiltAngle);
-      random = Random().nextDouble() + 2;
+      random = _random.nextDouble() + 2;
     }
 
     x1 = x + random * tiltCos;

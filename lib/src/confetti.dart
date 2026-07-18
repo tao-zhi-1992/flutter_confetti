@@ -1,7 +1,7 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_confetti/src/confetti_controller.dart';
 import 'package:flutter_confetti/src/confetti_options.dart';
 import 'package:flutter_confetti/src/confetti_physics.dart';
@@ -35,8 +35,10 @@ class Confetti extends StatefulWidget {
   /// the default value is false.
   final bool instant;
 
-  /// If true, the confetti will use a timer to schedule the confetti, it is useful when you want to keep the
-  /// speed of the confetti constant on every device with different  refresh rates.
+  /// The confetti speed is now frame-rate independent by default, so this
+  /// flag is no longer needed and has no effect.
+  @Deprecated('The confetti speed is frame-rate independent now, '
+      'so this flag is no longer needed and has no effect.')
   final bool enableCustomScheduler;
 
   const Confetti(
@@ -46,6 +48,8 @@ class Confetti extends StatefulWidget {
       required this.controller,
       this.onFinished,
       this.instant = false,
+      @Deprecated('The confetti speed is frame-rate independent now, '
+          'so this flag is no longer needed and has no effect.')
       this.enableCustomScheduler = false});
 
   @override
@@ -60,15 +64,14 @@ class Confetti extends StatefulWidget {
   /// provide one, a default one will be used.The default particles are circles and squares..
   /// [onFinished] is a callback that will be called when the confetti finished its animation.
   /// [insertInOverlay] is a callback that will be called to insert the confetti into the overlay.
-  /// [enableCustomScheduler] is a flag that indicates whether to use a custom scheduler. If true,
-  /// the confetti will use a timer to schedule the confetti, it is useful when you want to keep the
-  /// speed of the confetti constant on every device with different  refresh rates.
   static ConfettiController launch(
     BuildContext context, {
     required ConfettiOptions options,
     ParticleBuilder? particleBuilder,
     void Function(OverlayEntry overlayEntry)? insertInOverlay,
     void Function(OverlayEntry overlayEntry)? onFinished,
+    @Deprecated('The confetti speed is frame-rate independent now, '
+        'so this flag is no longer needed and has no effect.')
     bool enableCustomScheduler = false,
   }) {
     OverlayEntry? overlayEntry;
@@ -85,7 +88,6 @@ class Confetti extends StatefulWidget {
             width: 2,
             height: 2,
             child: Confetti(
-              enableCustomScheduler: enableCustomScheduler,
               controller: controller,
               options: options.copyWith(x: 0.5, y: 0.5),
               particleBuilder: particleBuilder,
@@ -118,20 +120,28 @@ class _ConfettiState extends State<Confetti>
     return widget.options ?? const ConfettiOptions();
   }
 
-  bool get enableCustomScheduler => widget.enableCustomScheduler == true;
-
   List<Glue> glueList = [];
 
-  late AnimationController animationController;
+  late final Ticker ticker;
 
-  late Timer? timer;
-  static const frameDuration = Duration(milliseconds: 16);
+  /// The physics simulation always runs at 60 ticks per second, no matter
+  /// what the display refresh rate is, so the confetti speed is the same
+  /// on every device.
+  static const physicsTick = Duration(microseconds: 16667);
+
+  Duration lastElapsed = Duration.zero;
+  Duration accumulator = Duration.zero;
+
+  /// Bumped after every physics update to trigger a repaint of the painter.
+  final repaint = ValueNotifier<int>(0);
 
   late double containerWidth;
   late double containerHeight;
 
+  static final Random _random = Random();
+
   int randomInt(int min, int max) {
-    return Random().nextInt(max - min) + min;
+    return _random.nextInt(max - min) + min;
   }
 
   void addParticles() {
@@ -140,7 +150,7 @@ class _ConfettiState extends State<Confetti>
 
     final particleBuilder = widget.particleBuilder != null
         ? widget.particleBuilder!
-        : (int index) => [Circle(), Square()][randomInt(0, 2)];
+        : (int index) => randomInt(0, 2) == 0 ? Circle() : Square();
 
     double x = options.x * containerWidth;
     double y = options.y * containerHeight;
@@ -157,48 +167,56 @@ class _ConfettiState extends State<Confetti>
     }
   }
 
-  void initScheduler() {
-    void schedule() {
-      final finished = !glueList.any((element) => !element.physics.finished);
+  void onTick(Duration elapsed) {
+    Duration delta = elapsed - lastElapsed;
+    lastElapsed = elapsed;
 
-      if (finished) {
-        if (enableCustomScheduler) {
-          timer?.cancel();
-        } else {
-          animationController.stop();
-        }
+    // Avoid a burst of updates after the ticker was muted for a while,
+    // e.g. when the app was in the background.
+    if (delta > const Duration(milliseconds: 100)) {
+      delta = physicsTick;
+    }
 
-        if (widget.onFinished != null) {
-          widget.onFinished!();
+    accumulator += delta;
+
+    bool updated = false;
+
+    while (accumulator >= physicsTick) {
+      accumulator -= physicsTick;
+
+      for (final glue in glueList) {
+        if (!glue.physics.finished) {
+          glue.physics.update();
         }
+      }
+
+      updated = true;
+    }
+
+    // On displays faster than 60Hz some frames don't run a physics step,
+    // so there is nothing new to draw and no need to repaint.
+    if (!updated) {
+      return;
+    }
+
+    glueList.removeWhere((glue) => glue.physics.finished);
+
+    if (glueList.isEmpty) {
+      ticker.stop();
+
+      if (widget.onFinished != null) {
+        widget.onFinished!();
       }
     }
 
-    if (enableCustomScheduler) {
-      timer = Timer.periodic(frameDuration, (_) {
-        schedule();
-
-        setState(() {}); // refresh the screen
-      });
-    } else {
-      animationController = AnimationController(
-          vsync: this, duration: const Duration(seconds: 1));
-
-      animationController.addListener(() {
-        schedule();
-      });
-    }
+    repaint.value++;
   }
 
   void play() {
-    if (enableCustomScheduler) {
-      if (timer == null || !timer!.isActive) {
-        initScheduler();
-      }
-    } else {
-      if (animationController.isAnimating == false) {
-        animationController.repeat();
-      }
+    if (!ticker.isActive) {
+      lastElapsed = Duration.zero;
+      accumulator = Duration.zero;
+      ticker.start();
     }
   }
 
@@ -217,7 +235,7 @@ class _ConfettiState extends State<Confetti>
   void initState() {
     super.initState();
 
-    initScheduler();
+    ticker = createTicker(onTick);
 
     if (widget.instant) {
       WidgetsBinding.instance.addPostFrameCallback(
@@ -244,11 +262,8 @@ class _ConfettiState extends State<Confetti>
 
   @override
   void dispose() {
-    if (enableCustomScheduler) {
-      timer?.cancel();
-    } else {
-      animationController.dispose();
-    }
+    ticker.dispose();
+    repaint.dispose();
 
     Launcher.unload(widget.controller);
 
@@ -261,13 +276,14 @@ class _ConfettiState extends State<Confetti>
       containerWidth = constraints.maxWidth;
       containerHeight = constraints.maxHeight;
 
-      return CustomPaint(
-        willChange: true,
-        painter: Painter(
-            glueList: glueList,
-            animationController:
-                enableCustomScheduler ? null : animationController),
-        child: const SizedBox.expand(),
+      // The confetti repaints on every physics tick; the boundary keeps
+      // those repaints isolated from the rest of the tree.
+      return RepaintBoundary(
+        child: CustomPaint(
+          willChange: true,
+          painter: Painter(glueList: glueList, repaint: repaint),
+          child: const SizedBox.expand(),
+        ),
       );
     });
   }

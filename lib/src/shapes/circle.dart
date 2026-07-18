@@ -5,6 +5,8 @@ import 'package:flutter_confetti/src/confetti_particle.dart';
 import 'package:flutter_confetti/src/confetti_physics.dart';
 
 class Circle extends ConfettiParticle {
+  final Paint _paint = Paint();
+
   @override
   void paint({
     required ConfettiPhysics physics,
@@ -19,11 +21,10 @@ class Circle extends ConfettiParticle {
       (physics.y2 - physics.y1).abs() * physics.ovalScalar,
     );
 
-    final paint = Paint()
-      ..color = physics.color.withValues(alpha: 1 - physics.progress);
+    _paint.color = physics.color.withValues(alpha: 1 - physics.progress);
 
     canvas.drawArc(Rect.fromCircle(center: const Offset(0, 0), radius: 1), 0,
-        2 * pi, true, paint);
+        2 * pi, true, _paint);
 
     canvas.restore();
   }
